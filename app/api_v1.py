@@ -2,6 +2,7 @@ from flask import Blueprint
 from flask_restplus import Api
 
 from .api.status import API as status
+from .api.auth import API as auth
 
 blueprint = Blueprint('api', __name__, url_prefix='/api/v0')
 api = Api(
@@ -12,3 +13,4 @@ api = Api(
     )
 
 api.add_namespace(status)
+api.add_namespace(auth)

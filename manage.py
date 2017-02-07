@@ -1,14 +1,49 @@
 import os
-# import unittest
-from app import create_app
+import logging
 from flask_script import Manager, Server
-# from test.HTMLTestRunner import TestProgram, HTMLTestRunner
-# from livereload import Server as LiveReloadServer
+
+
+from app import create_app
+from app.services.esi import ESIScraper
+from app.models import Call
+
+logger = logging.getLogger('ph_dashboard_logger')
+handler = logging.StreamHandler()
+logger.setLevel(logging.INFO)
+formatter = logging.Formatter('%(levelname)s:  %(asctime)s -- %(message)s')
+handler.setFormatter(formatter)
+logger.addHandler(handler)
 
 app = create_app(os.getenv('FLASK_CONFIG') or 'default')
 manager = Manager(app)
 
 manager.add_command('runserver', Server(host='0.0.0.0', port=9000))
+
+@manager.command
+@manager.option('-f', '--from_date', help='from date')
+@manager.option('-t', '--to_date', help='to date')
+@manager.option('-s', '--size', help='page size')
+def db_update(from_date, to_date, size=50):
+    esi = ESIScraper(password='7585')
+    logger.info("scraper created...")
+    esi._set_date_filters(fromdate=from_date, todate=to_date)
+    count = esi.get_total_record_count()
+    logger.info(
+        'loading {} call(s) to the database'.format(count))
+    esi.set_page_size(count=size)
+    data = esi.read_call_history_data()
+    esi.quit()
+    if len(data) > 0:
+        for d in data:
+            call = Call(
+                from_name=d.caller_id,
+                caller_phone=d.caller_num,
+                dialed_phone=d.dialed_num,
+                answer_phone=d.answer_num,
+                timestamp=d.timestamp,
+                duration=d.duration.seconds
+            )
+            call.save()
 
 # @manager.command
 # def runserver():

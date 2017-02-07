@@ -9,6 +9,7 @@ JWT_DURATION = timedelta(days=30)
 
 class Config(object):
     SECRET_KEY = SECRET_KEY
+    MONGO_DBNAME = 'ph-dashboard-db'
 
     @staticmethod
     def init_app(app):
@@ -19,14 +20,14 @@ class LocalConfig(Config):
     CONFIG = 'local'
 
 
-class DevelopmentConfig(Config):
+class StageConfig(Config):
     DEBUG = True
     CONFIG = 'development'
-    # MONGODB_DB = 'dev_py_proj_db'
-    # MONGODB_HOST = 'localhost'
-    # MONGODB_PORT = 27017
-    # MONGODB_USERNAME = 'gumatt'
-    # MONGODB_PASSWORD = ''
+    # MONGO_URI = mongodb://<dbuser>:<dbpassword>@ds139909.mlab.com:39909/ph-dashboard-db
+    MONGO_HOST = 'ds139909.mlab.com'
+    MONGO_PORT = 39909
+    MONGO_USERNAME = os.environ.get('MONGO_USERNAME', None)
+    MONGO_PASSWORD = os.environ.get('MONGO_PASSWORD', None)
 
 
 class TestingConfig(Config):
@@ -35,7 +36,7 @@ class TestingConfig(Config):
 
 
 config = {
-    'development': DevelopmentConfig,
+    'stage': StageConfig,
     'testing': TestingConfig,
-    'default': DevelopmentConfig
+    'default': LocalConfig
 }
