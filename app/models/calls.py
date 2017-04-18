@@ -1,6 +1,7 @@
 import re
 from datetime import timedelta, datetime, date
 from mongoengine import Document, StringField, DateTimeField, IntField, URLField
+from mongoengine.queryset.visitor import Q
 
 PHONE_NUM_SEG_SEPARATOR = '-'
 EXTERNAL_NUM_PREFIX = '1'
@@ -106,6 +107,15 @@ class Call(Document):
         self.answer_phone = PhoneNumber.standardize(kwargs.get('answer_phone'))
         self.timestamp = CallTimeStamp.standardize(kwargs.get('timestamp'))
         self.duration = CallDuration.sanitize(kwargs.get('duration'))
+
+
+def agent_calls(name, duration_limit='10'):
+    return Call.objects(
+        Q(from_name__icontains=name) |
+        Q(answer_phone__icontains=name) &
+        Q(duration__gte=duration_limit)
+        ).to_json()
+
 
 
 

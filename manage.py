@@ -20,9 +20,9 @@ manager = Manager(app)
 manager.add_command('runserver', Server(host='0.0.0.0', port=9000))
 
 @manager.command
-@manager.option('-f', '--from_date', help='from date')
-@manager.option('-t', '--to_date', help='to date')
-@manager.option('-s', '--size', help='page size')
+@manager.option('--from_date', '-f', dest='from_date', help='from date')
+@manager.option('--to_date', '-t', dest='to_date', help='to date')
+@manager.option('--size', '-s', dest='size', help='page size')
 def db_update(from_date, to_date, size=50):
     esi = ESIScraper(password='7585')
     logger.info("scraper created...")

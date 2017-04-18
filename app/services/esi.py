@@ -8,6 +8,7 @@ import requests
 from selenium import webdriver
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.common.by import By
+from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.support import expected_conditions as EC
 
 logger = logging.getLogger('ph_dashboard_logger')
@@ -306,11 +307,15 @@ class ESIScraper(object):
         self.mydriver.find_element_by_xpath(self.xpaths['fromDateField']).send_keys(fromdate)
 
         self.mydriver.find_element_by_xpath(self.xpaths['toDateField']).clear()
-        self.mydriver.find_element_by_xpath(self.xpaths['toDateField']).send_keys(todate)
+        self.mydriver.find_element_by_xpath(self.xpaths['toDateField']).send_keys(todate, Keys.TAB)
 
-        logger.debug("date fields filters filled in setting filters...")
-        self.mydriver.find_element_by_xpath(self.xpaths['filterFooter']).find_element_by_tag_name("input").click()
+        logger.info("date fields filters filled in setting filters...")
+        footer = self.mydriver.find_element_by_xpath(self.xpaths['filterFooter']).find_element_by_tag_name("input").click()
+        logger.info("filter button clicked")
         rec_count = self.get_current_record_count_on_page()
+        logger.info('waiting for filter modal to disappear')
+        wait = WebDriverWait(self.mydriver, 10)
+        wait.until(EC.invisibility_of_element_located((By.ID, 'history-filters')))
         logger.debug("%s records on the resulting page..." % rec_count)
         return rec_count
 
