@@ -29,19 +29,19 @@ def db_update(from_date, to_date, size=50):
     esi._set_date_filters(fromdate=from_date, todate=to_date)
     count = esi.get_total_record_count()
     logger.info(
-        'loading {} call(s) to the database'.format(count))
+        'loading %s call(s) to the database', count)
     esi.set_page_size(count=size)
     data = esi.read_call_history_data()
     esi.quit()
     if len(data) > 0:
-        for d in data:
+        for item in data:
             call = Call(
-                from_name=d.caller_id,
-                caller_phone=d.caller_num,
-                dialed_phone=d.dialed_num,
-                answer_phone=d.answer_num,
-                timestamp=d.timestamp,
-                duration=d.duration.seconds
+                from_name=item.caller_id,
+                caller_phone=item.caller_num,
+                dialed_phone=item.dialed_num,
+                answer_phone=item.answer_num,
+                timestamp=item.timestamp,
+                duration=item.duration.seconds
             )
             call.save()
 
@@ -54,32 +54,6 @@ def db_update(from_date, to_date, size=50):
 #     server = LiveReloadServer()
 #     server.watch('./test/results/*.html')
 #     server.serve(root='test/results')
-
-# @manager.command
-# def test():
-#     # import green
-#     # green.cmdline.sys.argv = ['', '-vvv']
-#     # green.main()
-#     report_filename = './test/results/testresults.html'
-#     fp = file(report_filename, 'wb')
-#     runner = HTMLTestRunner(
-#         stream=fp,
-#         title='My unit test',
-#         description='This demonstrates the report output by HTMLTestRunner.'
-#     )
-
-#     # Use an external stylesheet.
-#     # See the Template_mixin class for more customizable options
-#     runner.STYLESHEETS = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css">'
-#     # runner.STYLESHEET_TMPL = '<link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" type="text/css">'
-#     tests = unittest.TestLoader().discover('.', pattern='test_*.py')
-#     # run the test
-#     # tester = TestProgram(testRunner=runner)
-#     # tester.runTests()
-#     # print report_file
-#     runner.run(tests)
-#     print 'done'
-#     # runner.run(my_test_suite)
 
 if __name__ == '__main__':
     manager.run()
